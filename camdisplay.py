@@ -1,7 +1,8 @@
 import streamlit as st
 import cv2
 import time
-
+from streamlit_webrtc import webrtc_streamer
+webrtc_streamer(key="camera")
 st.title("Live Webcam Feed")
 
 # Function to check camera access
