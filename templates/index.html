@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Stream</title>
+</head>
+<body>
+    <div class="body">
+        <div class="bothimg">
+            <div class="img1">
+                <img src="{{ url_for('video_feed') }}" width="640" height="480" class="img1con">
+            </div>
+            <div class="space">
+                <h1 class="spacecon"></h1>
+            </div>
+            <div class="img2">
+                <img src="{{ url_for('video_feed') }}" width="640" height="480" class="img2con">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,39 +1,51 @@
-import streamlit as st
+from flask import Flask, render_template, Response
 import cv2
-import time
-from streamlit_webrtc import webrtc_streamer
-webrtc_streamer(key="camera")
-st.title("Live Webcam Feed")
 
-# Function to check camera access
-def check_camera():
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        st.error("⚠️ Camera access denied! Please grant permission and restart.")
-        return False
-    cap.release()
-    return True
+app = Flask(__name__)
 
-# Create a button to start the camera
-if st.button("Start Camera"):
-    if check_camera():
-        cap = cv2.VideoCapture(0)
-        placeholder = st.empty()
+# Open the webcam
+cap = cv2.VideoCapture(3)
 
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                st.warning("Failed to capture frame. Try restarting the app.")
-                break
+# Set the desired frame size
+frame_width = 640
+frame_height = 480
 
-            frame = cv2.flip(frame, 1)  # Flip for a better user experience
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
+# Resize the frame
+def resize_frame(frame):
+    return cv2.resize(frame, (frame_width, frame_height))
 
-            # Display the frame using Streamlit
-            placeholder.image(frame, channels="RGB")
+# Convert the frame to RGB (for better web rendering)
+def convert_to_rgb(frame):
+    return frame
 
-            # Add a Stop button to exit
-            if st.button("Stop Camera"):
-                break
+# Function to generate video frames for streaming
+def generate_frames():
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        # Resize the frame and convert it to RGB
+        frame_resized = resize_frame(frame)
+        frame_rgb = convert_to_rgb(frame_resized)
+        # frame_rgb=cv2.flip(frame_rgb,1)
+        # Encode the frame to JPEG
+        cv2.putText(frame_rgb,"hello how are you?",(10,300),cv2.FONT_HERSHEY_COMPLEX,1.8,(255,255,255),1,cv2.LINE_AA)
+        _, buffer = cv2.imencode('.jpg', frame_rgb)
+        frame_bytes = buffer.tobytes()
+        
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n\r\n')
 
-        cap.release()
+# Home route to display the webpage
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Video stream route to stream frames
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    app.run(debug=True, threaded=True)
