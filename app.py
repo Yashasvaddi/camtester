@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 
 # Open the webcam
-cap = None
+cap = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 # Set the desired frame size
 frame_width = 640
