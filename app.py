@@ -3,7 +3,7 @@ import cv2
 import time as t
 import math
 import mediapipe as mp
-import gunicorn
+import waitress
 
 app = Flask(__name__)
 
