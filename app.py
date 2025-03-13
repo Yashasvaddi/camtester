@@ -3,7 +3,8 @@ import cv2
 import time as t
 import math
 import mediapipe as mp
-import waitress
+from waitress import serve
+import os
 
 app = Flask(__name__)
 
@@ -68,4 +69,5 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    port = int(os.environ.get("PORT", 5000))  # Use Render's port or default to 5000
+    serve(app, host='0.0.0.0', port=port)
